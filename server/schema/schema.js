@@ -1,4 +1,5 @@
-const { projects, clients } = require("../sampleData.js");
+// const { projects, clients } = require("../sampleData.js");
+
 const {
   GraphQLObjectType,
   GraphQLID,
@@ -6,6 +7,9 @@ const {
   GraphQLSchema,
   GraphQLList,
 } = require("graphql");
+
+const Client = require("../models/Clients.js");
+const Project = require("../models/Projects.js");
 
 // Project type
 const ProjectType = new GraphQLObjectType({
@@ -15,12 +19,13 @@ const ProjectType = new GraphQLObjectType({
     name: { type: GraphQLString },
     description: { type: GraphQLString },
     status: { type: GraphQLString },
-    client:{
-        type:ClientType, //adding relation between other types or data
-        resolve(parent,args){
-            return clients.find((client) => client.id === args.id);
-        }
-    }
+    client: {
+      type: ClientType, //adding relation between other types or data
+      resolve(parent, args) {
+        return Client.findById(parent.clientId);
+        // return clients.find((client) => client.id === args.id);
+      },
+    },
   }),
 });
 // client type
@@ -37,32 +42,35 @@ const ClientType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   fields: {
-
     projects: {
       type: new GraphQLList(ProjectType),
       resolve(parent, args) {
-        return projects;
+        return Project.find();
+        // return projects;
       },
     },
     project: {
       type: ProjectType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return projects.find((project) => project.id === args.id);
+        return Project.findById(args.id)
+        // return projects.find((project) => project.id === args.id);
       },
     },
 
     clients: {
       type: new GraphQLList(ClientType),
       resolve(parent, args) {
-        return clients;
+        return Client.find();
+        // return clients;
       },
     },
     client: {
       type: ClientType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return clients.find((client) => client.id === args.id);
+        return Client.findById(args.id);
+        // return clients.find((client) => client.id === args.id);
       },
     },
   },
